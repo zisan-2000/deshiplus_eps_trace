@@ -1,0 +1,32 @@
+{
+  "name": "deshiplus-eps-trace",
+  "version": "0.9.0",
+  "private": true,
+  "description": "EPS Sandbox standalone configuration safety and offline/local diagnostics",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "help": "node ./src/cli.mjs help",
+    "validate": "node ./src/cli.mjs validate --config ./config.eps.sandbox.local.json",
+    "validate:example": "node ./src/cli.mjs validate --config ./config.eps.sandbox.example.json",
+    "validate:env": "node ./src/cli.mjs validate --config ./config.eps.sandbox.local.json --check-env",
+    "doctor": "node ./src/cli.mjs doctor --config ./config.eps.sandbox.local.json",
+    "interfaces": "node ./src/cli.mjs interfaces --config ./config.eps.sandbox.local.json",
+    "readiness": "node ./src/cli.mjs readiness --config ./config.eps.sandbox.local.json",
+    "readiness:local": "node ./src/cli.mjs readiness --config ./config.eps.sandbox.local.json --local-only",
+    "test": "node ./scripts/Run-OfflineTests.mjs",
+    "test:readiness": "node --require ./tests/no-network.cjs --test --test-concurrency=1 tests/readiness.test.mjs",
+    "test:contract": "node --require ./tests/no-network.cjs --test --test-concurrency=1 tests/contract.test.mjs",
+    "test:security": "node --require ./tests/no-network.cjs --test --test-concurrency=1 tests/security.test.mjs",
+    "trace": "node ./src/cli.mjs trace",
+    "test:environment": "node --require ./tests/no-network.cjs --test --test-concurrency=1 tests/environment.test.mjs tests/powershell-environment.test.mjs",
+    "test:mock": "node --require ./tests/no-network.cjs --test --test-concurrency=1 tests/mock-runner.test.mjs",
+    "test:mock-local": "node --test --test-concurrency=1 tests/mock-local.test.mjs tests/live-local.test.mjs",
+    "mock:evidence": "node ./scripts/Run-MockEvidence.mjs",
+    "live:local-evidence": "node ./scripts/Run-LivePreparationEvidence.mjs",
+    "auth:check": "powershell.exe -NoLogo -NoProfile -ExecutionPolicy Bypass -File ./scripts/Invoke-EpsAuthCheck.ps1",
+    "auth:mock-evidence": "node ./scripts/Run-AuthCheckMockEvidence.mjs"
+  }
+}

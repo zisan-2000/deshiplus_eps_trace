@@ -1,0 +1,344 @@
+{
+  "contract": "EPS_MERCHANT_V4_SANDBOX",
+  "stage": "STEP_7C_AUTH_ONLY_PREPARED",
+  "environment": "sandbox",
+  "profile": "template",
+  "execution": {
+    "networkEnabled": false,
+    "paymentRequestsEnabled": false,
+    "callbacksEnabled": false,
+    "automaticRetries": 0
+  },
+  "session": {
+    "name": "EPS_SANDBOX_STEP_7B_PREPARATION",
+    "outputRoot": "./evidence/eps-sandbox"
+  },
+  "capture": {
+    "enabled": false,
+    "interface": "5",
+    "tsharkPath": "C:\\Program Files\\Wireshark\\tshark.exe",
+    "captureFilter": "tcp port 443 and host sandboxpgapi.eps.com.bd",
+    "preservePcap": false,
+    "format": "pcapng",
+    "fileName": "session.pcapng",
+    "readinessRequired": true,
+    "readinessTimeoutMs": 8000,
+    "abortOnFailure": true,
+    "tlsKeyLoggingEnabled": false
+  },
+  "network": {
+    "timeoutMs": 20000,
+    "maxResponseBytes": 32768,
+    "rejectUnauthorized": true,
+    "followRedirects": false
+  },
+  "evidence": {
+    "includeRequestHeaders": false,
+    "includeResponseHeaders": false,
+    "includeRequestBody": false,
+    "includeResponseBody": false,
+    "hashBodies": true,
+    "maskKeys": [
+      "authorization",
+      "x-hash",
+      "username",
+      "password",
+      "hashkey",
+      "merchantid",
+      "storeid",
+      "token",
+      "jwt",
+      "secret",
+      "cookie",
+      "set-cookie",
+      "merchanttransactionid",
+      "customerorderid",
+      "transactionid",
+      "totalamount",
+      "redirecturl",
+      "successurl",
+      "failurl",
+      "cancelurl",
+      "customername",
+      "customeremail",
+      "customeraddress",
+      "customeraddress2",
+      "customercity",
+      "customerstate",
+      "customerpostcode",
+      "customercountry",
+      "customerphone",
+      "customerid",
+      "shipmentname",
+      "shipmentaddress",
+      "shipmentaddress2",
+      "shipmentcity",
+      "shipmentstate",
+      "shipmentpostcode",
+      "shipmentcountry",
+      "productname",
+      "productlist",
+      "valuea",
+      "valueb",
+      "valuec",
+      "valued",
+      "attempt",
+      "state",
+      "errormessage"
+    ]
+  },
+  "safety": {
+    "endpointPolicy": "exact-sandbox-step-urls-only",
+    "environmentPreparation": {
+      "source": "hidden-prompts-only",
+      "storage": "process-only",
+      "customerData": "fixed-synthetic-profile",
+      "validation": "offline-network-guard-required",
+      "callbackAvailabilityRequiredBeforeCredentials": true,
+      "existingIdentityOverwriteAllowed": false
+    },
+    "callbackIsolation": {
+      "origin": {
+        "env": "EPS_TRACE_CALLBACK_ORIGIN",
+        "type": "https-origin"
+      },
+      "ecommerceOrigins": {
+        "env": "EPS_TRACE_ECOMMERCE_ORIGINS",
+        "type": "json-array-of-origins"
+      },
+      "forbidSharedHostname": true,
+      "paths": {
+        "successUrl": "/eps-trace/success",
+        "failUrl": "/eps-trace/fail",
+        "cancelUrl": "/eps-trace/cancel"
+      },
+      "maxUrlChars": 4096,
+      "maxEcommerceOrigins": 32,
+      "queryPolicy": "forbidden-until-contract-reviewed",
+      "redirectsAllowed": false,
+      "receiverOwnership": "UNCONFIRMED"
+    },
+    "attemptTracking": {
+      "requiredBeforeInitialize": true,
+      "restartSafeRequired": true,
+      "atomicReservationRequired": true,
+      "storage": "private-atomic-journal-prepared-for-account-scoped-live-attempts",
+      "scope": [
+        "sandbox",
+        "merchantAccountFingerprint",
+        "storeFingerprint"
+      ],
+      "uniqueFields": [
+        "merchantTransactionId",
+        "CustomerOrderId"
+      ],
+      "persistMinimum": [
+        "merchantAccountFingerprint",
+        "storeFingerprint",
+        "merchantTransactionId",
+        "CustomerOrderId",
+        "amount",
+        "currency",
+        "phase",
+        "requestFingerprint",
+        "updatedAt"
+      ],
+      "ownerOnlyAccessRequired": true,
+      "protectedStorageRequired": true,
+      "persistCredentials": false,
+      "persistTokens": false,
+      "persistCustomerData": false,
+      "persistSignedUrls": false,
+      "uncertainInitialization": "block-new-initialization-and-require-reconciliation",
+      "statusBinding": "original-account-id-and-amount",
+      "automaticRestartResume": false
+    },
+    "hostedPayment": {
+      "manualGateRequiredBeforeStatus": true,
+      "procedure": "UNCONFIRMED"
+    },
+    "statusRetry": {
+      "policy": "UNCONFIRMED",
+      "automaticRetries": 0
+    },
+    "blockers": [
+      "LIVE_EPS_TRANSPORT_EXECUTION_NOT_APPROVED",
+      "PRIVATE_SANDBOX_INPUTS_NOT_VERIFIED",
+      "LIVE_ATTEMPT_LEDGER_SCOPE_NOT_APPROVED",
+      "HOSTED_PAYMENT_PROCEDURE_UNCONFIRMED",
+      "ISOLATED_CALLBACK_RECEIVER_OWNERSHIP_UNCONFIRMED",
+      "CALLBACK_DELIVERY_CONTRACT_UNCONFIRMED",
+      "ECOMMERCE_ORIGIN_DENYLIST_NOT_INDEPENDENTLY_VERIFIED",
+      "STATUS_POLLING_RETRY_POLICY_UNCONFIRMED",
+      "FRESH_CAPTURE_READINESS_REQUIRED"
+    ]
+  },
+  "steps": [
+    {
+      "name": "AUTH",
+      "method": "POST",
+      "url": "https://sandboxpgapi.eps.com.bd/v1/Auth/GetToken",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "signing": {
+        "header": "x-hash",
+        "algorithm": "HMAC-SHA512",
+        "keyEnv": "EPS_HASH_KEY",
+        "inputEnv": "EPS_USERNAME",
+        "keyEncoding": "utf8",
+        "inputEncoding": "utf8",
+        "outputEncoding": "base64"
+      },
+      "body": {
+        "userName": {
+          "env": "EPS_USERNAME",
+          "type": "string"
+        },
+        "password": {
+          "env": "EPS_PASSWORD",
+          "type": "string"
+        }
+      },
+      "query": {},
+      "extract": {
+        "EPS_TOKEN": "token"
+      },
+      "optionalExtract": {},
+      "observe": []
+    },
+    {
+      "name": "INITIALIZE",
+      "method": "POST",
+      "url": "https://sandboxpgapi.eps.com.bd/v1/EPSEngine/InitializeEPS",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": {
+          "scheme": "Bearer",
+          "variable": "EPS_TOKEN"
+        }
+      },
+      "signing": {
+        "header": "x-hash",
+        "algorithm": "HMAC-SHA512",
+        "keyEnv": "EPS_HASH_KEY",
+        "inputEnv": "EPS_TRACE_MERCHANT_TRANSACTION_ID",
+        "keyEncoding": "utf8",
+        "inputEncoding": "utf8",
+        "outputEncoding": "base64"
+      },
+      "body": {
+        "merchantId": {
+          "env": "EPS_MERCHANT_ID",
+          "type": "string"
+        },
+        "storeId": {
+          "env": "EPS_STORE_ID",
+          "type": "string"
+        },
+        "CustomerOrderId": {
+          "env": "EPS_TRACE_CUSTOMER_ORDER_ID",
+          "type": "string"
+        },
+        "merchantTransactionId": {
+          "env": "EPS_TRACE_MERCHANT_TRANSACTION_ID",
+          "type": "string"
+        },
+        "transactionTypeId": 1,
+        "totalAmount": {
+          "env": "EPS_TRACE_AMOUNT",
+          "type": "number"
+        },
+        "successUrl": {
+          "env": "EPS_TRACE_SUCCESS_URL",
+          "type": "string"
+        },
+        "failUrl": {
+          "env": "EPS_TRACE_FAIL_URL",
+          "type": "string"
+        },
+        "cancelUrl": {
+          "env": "EPS_TRACE_CANCEL_URL",
+          "type": "string"
+        },
+        "customerName": {
+          "env": "EPS_TRACE_CUSTOMER_NAME",
+          "type": "string"
+        },
+        "customerEmail": {
+          "env": "EPS_TRACE_CUSTOMER_EMAIL",
+          "type": "string"
+        },
+        "customerAddress": {
+          "env": "EPS_TRACE_CUSTOMER_ADDRESS",
+          "type": "string"
+        },
+        "customerCity": {
+          "env": "EPS_TRACE_CUSTOMER_CITY",
+          "type": "string"
+        },
+        "customerState": {
+          "env": "EPS_TRACE_CUSTOMER_STATE",
+          "type": "string"
+        },
+        "customerPostcode": {
+          "env": "EPS_TRACE_CUSTOMER_POSTCODE",
+          "type": "string"
+        },
+        "customerCountry": {
+          "env": "EPS_TRACE_CUSTOMER_COUNTRY",
+          "type": "string"
+        },
+        "customerPhone": {
+          "env": "EPS_TRACE_CUSTOMER_PHONE",
+          "type": "string"
+        },
+        "productName": {
+          "env": "EPS_TRACE_PRODUCT_NAME",
+          "type": "string"
+        }
+      },
+      "query": {},
+      "extract": {
+        "EPS_REDIRECT_URL": "RedirectURL"
+      },
+      "optionalExtract": {
+        "EPS_TRANSACTION_ID": "TransactionId"
+      },
+      "observe": []
+    },
+    {
+      "name": "STATUS",
+      "method": "GET",
+      "url": "https://sandboxpgapi.eps.com.bd/v1/EPSEngine/CheckMerchantTransactionStatus",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": {
+          "scheme": "Bearer",
+          "variable": "EPS_TOKEN"
+        }
+      },
+      "signing": {
+        "header": "x-hash",
+        "algorithm": "HMAC-SHA512",
+        "keyEnv": "EPS_HASH_KEY",
+        "inputEnv": "EPS_TRACE_MERCHANT_TRANSACTION_ID",
+        "keyEncoding": "utf8",
+        "inputEncoding": "utf8",
+        "outputEncoding": "base64"
+      },
+      "body": null,
+      "query": {
+        "merchantTransactionId": {
+          "env": "EPS_TRACE_MERCHANT_TRANSACTION_ID",
+          "type": "string"
+        }
+      },
+      "extract": {},
+      "optionalExtract": {},
+      "observe": [
+        "Status"
+      ]
+    }
+  ]
+}
